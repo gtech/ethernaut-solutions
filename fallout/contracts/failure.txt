@@ -1,0 +1,17 @@
+Regular JavaScript computations can fail by throwing an exception. Asynchronous computations often need something like that. A network request may fail, or some code that is as part of the asynchronous computation may throw an exception.
+
+One of the most pressing problems with the callback style of asynchronous programming is that it makes it extremely difficult to make sure failures are properly reported to the callbacks.
+
+A widely used convention is that the first argument to the callback is used to indicate that the action failed, and the second contains the value produced by the action when it was successful. Such callback functions must always check whether they received an exception, and make sure that any problems they cause, including exceptions thrown by functions they call, are caught and given to the right function.
+
+Promises make this easier. They can be either resolved (the action finished successfully) or rejected (it failed). Resolve handlers (as registered with then) are called only when the action is successful, and rejections are automatically propagated to the new promise that is returned by then. And when a handler throws an exception, this automatically causes the promise produced by its then call to be rejected. So if any element in a chain of asynchronous actions fails, the outcome of the whole chain is marked as rejected, and no success handlers are called beyond the point where it failed.
+
+Much like resolving a promise provides a value, rejecting one also provides one, usually called the reason of the rejection. When an exception in a handler function causes the rejection, the exception value is used as the reason. Similarly, when a handler returns a promise that is rejected, that rejection flows into the next promise. There’s a Promise.reject function that creates a new, immediately rejected promise.
+
+To explicitly handle such rejections, promises have a catch method that registers a handler to be called when the promise is rejected, similar to how then handlers handle normal resolution. It’s also very much like then in that it returns a new promise, which resolves to the original promise’s value if it resolves normally, and to the result of the catch handler otherwise. If a catch handler throws an error, the new promise is also rejected.
+
+As a shorthand, then also accepts a rejection handler as second argument, so you can install both types of handlers in a single method call.
+
+A function passed to the Promise constructor receives a second argument, alongside the resolve function, which it can use to reject the new promise.
+
+The chains of promise values created by calls to then and catch can be seen as a pipeline through which asynchronous values or failures move. Since such chains are created by registering handlers, each link has a success handler or a rejection handler (or both) associated with it. Handlers that don’t match the type of outcome (success or failure) are ignored. But those that do match are called, and their outcome determines what kind of value comes next—success when it returns a non-promise value, rejection when it throws an exception, and the outcome of a promise when it returns one of those.

